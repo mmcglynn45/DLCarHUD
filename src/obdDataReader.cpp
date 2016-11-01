@@ -23,6 +23,8 @@ obdDataReader::obdDataReader(char portName[]) {
 	unsigned char requestPID[] = "ATZ\n";
 	writePort(requestPID);
 	usleep(300000);
+
+
 }
 
 obdDataReader::obdDataReader(char hostname[], int port){
@@ -34,6 +36,17 @@ obdDataReader::obdDataReader(char hostname[], int port){
 	}
 
 	//Send device reset
+	unsigned char requestPID[] = "ATWS\n";
+	writePort(requestPID);
+	usleep(300000);
+
+	requestPID = "ATSP3\n";
+	writePort(requestPID);
+	usleep(300000);
+
+	requestPID = "ATTP3\n";
+	writePort(requestPID);
+	usleep(300000);
 }
 
 obdDataReader::~obdDataReader() {
@@ -215,10 +228,10 @@ int obdDataReader::readRPM(){
 
 	cout << "Engine RPM response: [" << response << "]"<< endl;
 	char byteA[3] = {(char)response[6],(char)response[7],'\0'};
-	//cout << "Byte A: [" << byteA << "]"<< endl;
+	cout << "Byte A: [" << byteA << "]"<< endl;
 
 	char byteB[3] = {(char)response[9],(char)response[10],'\0'};
-	//cout << "Byte B: [" << byteB << "]"<< endl;
+	cout << "Byte B: [" << byteB << "]"<< endl;
 
 
 	int a = (int)(response[0]);
