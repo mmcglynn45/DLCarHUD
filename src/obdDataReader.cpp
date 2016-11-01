@@ -209,6 +209,7 @@ int obdDataReader::readRPM(){
 	char * response = "\0";
 	while(response[0]!='4'){
 		response = readPort(1024);
+		cout << "Attempted response read " << response << endl;
 		usleep(1000);
 	}
 
