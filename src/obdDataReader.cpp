@@ -174,7 +174,7 @@ char* obdDataReader::readPort(int bufferLength){
 		std::cout << "Read nothing!" << std::endl;
 	}
 	else {
-		//std::cout << "Response: " << response << std::endl;
+		std::cout << "Response: " << response << std::endl;
 	}
 	return response;
 }
