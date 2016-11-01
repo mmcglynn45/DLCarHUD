@@ -40,12 +40,12 @@ obdDataReader::obdDataReader(char hostname[], int port){
 	writePort(requestPID);
 	usleep(300000);
 
-	requestPID = "ATSP3\n";
-	writePort(requestPID);
+	unsigned char request2PID[] = "ATSP3\n";
+	writePort(request2PID);
 	usleep(300000);
 
-	requestPID = "ATTP3\n";
-	writePort(requestPID);
+	unsigned char request3PID[] = "ATTP3\n";
+	writePort(request3PID);
 	usleep(300000);
 }
 
