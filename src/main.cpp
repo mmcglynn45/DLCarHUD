@@ -25,7 +25,7 @@ int main() {
 
 	char portName[] = obdDonglePort;
 
-	cout << "Welcome to the DLCarHUD project..." << endl; // prints !!!Hello World!!!
+	cout << "Welcome to the DLCarHUD project...." << endl; // prints !!!Hello World!!!
 
 	obdDataReader carOBDReader(portName);
 
