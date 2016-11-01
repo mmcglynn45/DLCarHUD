@@ -18,6 +18,14 @@
 #include <sstream>
 #include <vector>
 
+//TCP includes
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
+
+
 #ifndef OBDDATAREADER_H_
 #define OBDDATAREADER_H_
 
@@ -27,10 +35,13 @@ class obdDataReader {
 private:
 	//Variables
 	int obdPortNumber;
+	int tcpOBDPortSocket;
 
+	//TCP Port Functions (For WiFi based OBD2)
+	int openTCPPort(char hostname[], int port);
+	void closeTCPPort();
 
-
-	//Functions
+	//Serial Port Functions
 	int openPort(char portName[]);
 	void closePort();
 
@@ -42,6 +53,7 @@ public:
 	int readRPM();
 
 	obdDataReader(char portName[]);
+	obdDataReader(char hostname[], int port);
 	virtual ~obdDataReader();
 };
 

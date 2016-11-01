@@ -10,21 +10,87 @@
 
 
 obdDataReader::obdDataReader(char portName[]) {
+	tcpOBDPortSocket = 0;
+	obdPortNumber = 0;
+
+
 	if (openPort(portName) > -1){
 		std::cout << "Received port initialization success..." << std::endl;
 
 	}
 
+	//Send device reset
 	unsigned char requestPID[] = "ATZ\n";
 	writePort(requestPID);
 	usleep(300000);
 }
 
-obdDataReader::~obdDataReader() {
-	std::cout << "Now closing port" << std::endl;
-	closePort();
-	std::cout << "Port closed" << std::endl;
+obdDataReader::obdDataReader(char hostname[], int port){
+	tcpOBDPortSocket = 0;
+	obdPortNumber = 0;
+
+	if (openTCPPort(hostname,port) > -1){
+			std::cout << "Received port initialization success..." << std::endl;
+	}
+
+	//Send device reset
 }
+
+obdDataReader::~obdDataReader() {
+
+	if(obdPortNumber){
+		std::cout << "Now closing port" << std::endl;
+		closePort();
+		std::cout << "Port closed" << std::endl;
+	}
+
+	if(tcpOBDPortSocket){
+	    std::cout << "Now closing TCP port" << std::endl;
+	    closeTCPPort();
+	    std::cout << "TCP port closed" << std::endl;
+	}
+
+}
+
+int obdDataReader::openTCPPort(char hostname[], int port){
+	int sockfd, n;
+	struct sockaddr_in serv_addr;
+	struct hostent *server;
+
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (sockfd < 0){
+		cout<<"Unable to open TCP socket" << endl;
+		return -1;
+	}
+
+	server = gethostbyname(hostname);
+	if (server == NULL) {
+		cout<<"Unable to retrieve host from hostname " << hostname <<endl;
+		return -2;
+	}
+	bzero((char *) &serv_addr, sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	bcopy((char *)server->h_addr,
+			(char *)&serv_addr.sin_addr.s_addr,
+			server->h_length);
+	serv_addr.sin_port = htons(port);
+	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
+		cout<<"Unable to connect to port "<< port <<" of host " << hostname <<endl;
+		return -3;
+	}
+
+	//Connection successful
+	tcpOBDPortSocket = sockfd;
+
+	return 0;
+}
+
+void obdDataReader::closeTCPPort(){
+	close(tcpOBDPortSocket);
+}
+
+
 
 int obdDataReader::openPort(char portName[]){
 	obdPortNumber = open(portName, O_RDWR);
@@ -79,6 +145,13 @@ int obdDataReader::openPort(char portName[]){
 }
 
 char* obdDataReader::readPort(int bufferLength){
+	int readPort = 0;
+	if(obdPortNumber){
+		readPort = obdPortNumber;
+	}else{
+		readPort = tcpOBDPortSocket;
+	}
+
 	int n = 0,
 			spot = 0;
 	char buf = '\0';
@@ -88,7 +161,7 @@ char* obdDataReader::readPort(int bufferLength){
 	memset(response, '\0', sizeof response);
 
 	do {
-		n = read( obdPortNumber, &buf, 1 );
+		n = read(readPort, &buf, 1 );
 		sprintf( &response[spot], "%c", buf );
 		spot += n;
 		usleep(200);
@@ -107,38 +180,24 @@ char* obdDataReader::readPort(int bufferLength){
 }
 
 int obdDataReader::writePort(unsigned char cmd[]){
+	int writePort = 0;
+	if(obdPortNumber){
+		writePort = obdPortNumber;
+	}else{
+		writePort = tcpOBDPortSocket;
+	}
+
+
 	int n_written = 0,
 			spot = 0;
 
 	do {
-		n_written = write(obdPortNumber, &cmd[spot], 1 );
+		n_written = write(writePort, &cmd[spot], 1 );
 		spot += n_written;
 		usleep(1000);
 	} while (cmd[spot-1] != '\n' && n_written > 0);
 
-	char* response;
-	/*
-	usleep(50000);
-
-	response = readPort(1024);
-	cout << "Immediate response: " <<response<<endl;
-	usleep(500000);
-	response = readPort(1024);
-	cout << "Second response: " <<response<<endl;
-	char* signedCommand = (char*)cmd;
-	if(strcmp(response,signedCommand) == 0){
-		cout << "Transmission Successful" << endl;
-		usleep(50000);
-		return 0;
-	}else{
-		cout << "Transmission Failed" << endl;
-		usleep(50000);
-		return -1;
-	}
-	*/
 	return 0;
-
-
 
 }
 
