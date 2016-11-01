@@ -17,8 +17,8 @@
 #include "obdDataReader.h"
 
 #define obdDongleCOMPort "/dev/pts/12"
-#define obdDongleIP "127.0.0.1"
-#define obdDonglePortNumber 9801
+#define obdDongleIP "192.168.0.10"
+#define obdDonglePortNumber 35000
 
 using namespace std;
 
