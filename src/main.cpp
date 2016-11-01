@@ -28,7 +28,11 @@ int main() {
 	cout << "Welcome to the DLCarHUD project..." << endl; // prints !!!Hello World!!!
 
 	obdDataReader carOBDReader(portName);
-	carOBDReader.readRPM();
+
+    for(int i = 0; i < 10; i++){
+    	carOBDReader.readRPM();
+    }
+
 
 
 

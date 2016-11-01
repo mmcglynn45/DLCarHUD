@@ -15,6 +15,8 @@
 #include <errno.h>
 #include <termios.h>
 #include <cstring>
+#include <sstream>
+#include <vector>
 
 #ifndef OBDDATAREADER_H_
 #define OBDDATAREADER_H_
