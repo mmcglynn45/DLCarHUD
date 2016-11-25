@@ -31,7 +31,8 @@ int main() {
 
 	obdDataReader carOBDReader(hostName,port);
 
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < 1000; i++){
+    	usleep(200000);
     	carOBDReader.readRPM();
     }
 

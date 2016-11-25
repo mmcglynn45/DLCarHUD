@@ -20,7 +20,7 @@ obdDataReader::obdDataReader(char portName[]) {
 	}
 
 	//Send device reset
-	unsigned char requestPID[] = "ATZ\n";
+	unsigned char requestPID[] = "ATZ\r";
 	writePort(requestPID);
 	usleep(300000);
 }
@@ -165,7 +165,7 @@ char* obdDataReader::readPort(int bufferLength){
 		sprintf( &response[spot], "%c", buf );
 		spot += n;
 		usleep(200);
-	} while( (buf != '\n' && n > 0) );
+	} while( (buf != '\r' && n > 0) );
 
 	if (n < 0) {
 		std::cout << "Error reading: " << strerror(errno) << std::endl;
@@ -174,7 +174,12 @@ char* obdDataReader::readPort(int bufferLength){
 		std::cout << "Read nothing!" << std::endl;
 	}
 	else {
-		//std::cout << "Response: " << response << std::endl;
+		std::cout << "Response: " << response << std::endl;
+	}
+
+	if (response[0] == '>'){
+		std::cout << "Read a command start!" << std::endl;
+		//response++;
 	}
 	return response;
 }
@@ -195,7 +200,7 @@ int obdDataReader::writePort(unsigned char cmd[]){
 		n_written = write(writePort, &cmd[spot], 1 );
 		spot += n_written;
 		usleep(1000);
-	} while (cmd[spot-1] != '\n' && n_written > 0);
+	} while (cmd[spot-1] != '\r' && n_written > 0);
 
 	return 0;
 
@@ -203,21 +208,24 @@ int obdDataReader::writePort(unsigned char cmd[]){
 
 int obdDataReader::readRPM(){
 
-	unsigned char requestPID[] = "010C\n";
+	unsigned char requestPID[] = "010C\r";
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
-	while(response[0]!='4'){
+	while(response[0]!='4'&&response[0]!='>'){
 		response = readPort(1024);
+		if (response[0]=='>'){
+			response++;
+		}
 		usleep(1000);
 	}
 
 	cout << "Engine RPM response: [" << response << "]"<< endl;
 	char byteA[3] = {(char)response[6],(char)response[7],'\0'};
-	//cout << "Byte A: [" << byteA << "]"<< endl;
+	cout << "Byte A: [" << byteA << "]"<< endl;
 
 	char byteB[3] = {(char)response[9],(char)response[10],'\0'};
-	//cout << "Byte B: [" << byteB << "]"<< endl;
+	cout << "Byte B: [" << byteB << "]"<< endl;
 
 
 	int a = (int)(response[0]);
