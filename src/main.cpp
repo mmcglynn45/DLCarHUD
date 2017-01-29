@@ -18,7 +18,7 @@
 
 #define portNum 4001
 
-#define obdDongleCOMPort "/dev/pts/6"
+#define obdDongleCOMPort "/dev/rfcomm0"
 #define obdDongleIP "192.168.1.129"
 #define obdDonglePortNumber 35000
 
@@ -77,11 +77,15 @@ int main() {
     while (true) {
 
     	//Update car readings
-    	//carOBDReader.updateAll();
+    	carOBDReader.updateAll();
+
+		printf("hello\n");
 
     	if (!webThreadCreated&&!webData.currentlyAccepting) {
+			webData.currentlyAccepting = true;
     		pthread_create(&webThread, NULL, webAccept, &webData);
     		webThreadCreated = true;
+			printf("thread created\n");
     	}
 
     	if (webThreadCreated&&!webData.currentlyAccepting)
@@ -104,7 +108,7 @@ void* webAccept(void * webSocketDataPointer) {
 	struct webSocketData * myWebSocket;
 	myWebSocket = (webSocketData*)webSocketDataPointer;
 
-	myWebSocket->currentlyAccepting = true;
+
 
 	sockaddr_in cli_addr;
 	socklen_t clilen;

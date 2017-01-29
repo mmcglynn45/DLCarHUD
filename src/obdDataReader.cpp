@@ -19,15 +19,13 @@ obdDataReader::obdDataReader(char portName[]) {
 
 	}
 
-	//Send device reset
-	unsigned char requestPID[] = "ATSP3\r";
-	writePort(requestPID);
-	usleep(1000000);
-
-
 	unsigned char request2PID[] = "ATZ\r";
 	writePort(request2PID);
-	usleep(1000000);
+	usleep(5000000);
+
+	unsigned char request3PID[] = "ATSP3\r";
+	writePort(request3PID);
+	usleep(2000000);
 
 
 
@@ -443,12 +441,25 @@ int obdDataReader::readManifoldAbsPressure(){
 }
 
 void obdDataReader::updateAll(){
+	int sleeptime = 200000;
+	usleep(sleeptime);
 	readRPM();
-	readManifoldAbsPressure();
+	readPort(1024);
+	usleep(sleeptime);
+	//readManifoldAbsPressure();
+	//usleep(sleeptime);
 	readIntakeAirTemp();
+	readPort(1024);
+	usleep(sleeptime);
 	readSpeed();
+	readPort(1024);
+	usleep(sleeptime);
 	readThrottlePos();
+	readPort(1024);
+	usleep(sleeptime);
 	readEngineCoolantTemp();
+		readPort(1024);
+	usleep(sleeptime);
 }
 
 
