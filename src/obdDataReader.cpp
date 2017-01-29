@@ -20,9 +20,27 @@ obdDataReader::obdDataReader(char portName[]) {
 	}
 
 	//Send device reset
-	unsigned char requestPID[] = "ATZ\n";
+	unsigned char requestPID[] = "ATZ\r";
 	writePort(requestPID);
-	usleep(300000);
+	usleep(1000000);
+
+
+	unsigned char request2PID[] = "ATD\r";
+	writePort(request2PID);
+	usleep(1000000);
+
+	unsigned char request3PID[] = "ATE1\r";
+	writePort(request3PID);
+	usleep(1000000);
+
+	unsigned char request4PID[] = "ATL1\r";
+	writePort(request4PID);
+	usleep(1000000);
+
+	unsigned char request5PID[] = "0100\r";
+	writePort(request5PID);
+	usleep(3000000);
+
 
 
 }
@@ -36,16 +54,25 @@ obdDataReader::obdDataReader(char hostname[], int port){
 	}
 
 	//Send device reset
-	unsigned char requestPID[] = "ATWS\n";
+	unsigned char requestPID[] = "ATZ\r";
 	writePort(requestPID);
 	usleep(300000);
 
-	unsigned char request2PID[] = "ATSP3\n";
+
+	unsigned char request2PID[] = "ATD\r";
 	writePort(request2PID);
 	usleep(300000);
 
-	unsigned char request3PID[] = "ATTP3\n";
+	unsigned char request3PID[] = "ATE1\r";
 	writePort(request3PID);
+	usleep(300000);
+
+	unsigned char request4PID[] = "ATL1\r";
+	writePort(request4PID);
+	usleep(300000);
+
+	unsigned char request5PID[] = "0100\r";
+	writePort(request5PID);
 	usleep(300000);
 }
 
@@ -171,14 +198,14 @@ char* obdDataReader::readPort(int bufferLength){
 
 	/* Whole response*/
 	char response[bufferLength];
-	memset(response, '\0', sizeof response);
+	memset(response, '\0', sizeof(response));
 
 	do {
 		n = read(readPort, &buf, 1 );
 		sprintf( &response[spot], "%c", buf );
 		spot += n;
 		usleep(200);
-	} while( (buf != '\n' && n > 0) );
+	} while( (buf != '\r' && n > 0) );
 
 	if (n < 0) {
 		std::cout << "Error reading: " << strerror(errno) << std::endl;
@@ -188,6 +215,7 @@ char* obdDataReader::readPort(int bufferLength){
 	}
 	else {
 		std::cout << "Response: " << response << std::endl;
+
 	}
 	return response;
 }
@@ -208,7 +236,7 @@ int obdDataReader::writePort(unsigned char cmd[]){
 		n_written = write(writePort, &cmd[spot], 1 );
 		spot += n_written;
 		usleep(1000);
-	} while (cmd[spot-1] != '\n' && n_written > 0);
+	} while (cmd[spot-1] != '\r' && n_written > 0);
 
 	return 0;
 
@@ -216,7 +244,7 @@ int obdDataReader::writePort(unsigned char cmd[]){
 
 int obdDataReader::readRPM(){
 
-	unsigned char requestPID[] = "010C\n";
+	unsigned char requestPID[] = "010C\r";
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
@@ -243,13 +271,179 @@ int obdDataReader::readRPM(){
 	std::stringstream ss2;
 	ss2 << std::hex << byteB;
 	ss2 >> b;
-	int rpm = (a*256 + b)/4;
+	int rpmCalc = (a*256 + b)/4;
+	rpm = rpmCalc/1.0;
 
 	cout << "Engine RPM is " << rpm << endl;
 
 
-	return 100;
+	return rpm;
 
+}
+
+int obdDataReader::readSpeed(){
+
+	unsigned char requestPID[] = "010D\r";
+	writePort(requestPID);
+	usleep(1000);
+	char * response = "\0";
+	while(response[0]!='4'){
+		response = readPort(1024);
+		cout << "Attempted response read " << response << endl;
+		usleep(1000);
+	}
+
+	cout << "Engine Speed response: [" << response << "]"<< endl;
+	char byteA[3] = {(char)response[6],(char)response[7],'\0'};
+	cout << "Byte A: [" << byteA << "]"<< endl;
+
+
+	int a = (int)(response[0]);
+	std::stringstream ss;
+	ss << std::hex << byteA;
+	ss >> a;
+
+	int speedCalc = a;
+	speed = speedCalc*0.621371192;
+
+	cout << "Engine Speed is " << speed << endl;
+
+
+	return speed;
+
+}
+
+int obdDataReader::readThrottlePos(){
+
+	unsigned char requestPID[] = "0111\r";
+	writePort(requestPID);
+	usleep(1000);
+	char * response = "\0";
+	while(response[0]!='4'){
+		response = readPort(1024);
+		cout << "Attempted response read " << response << endl;
+		usleep(1000);
+	}
+
+	cout << "Engine Throttle response: [" << response << "]"<< endl;
+	char byteA[3] = {(char)response[6],(char)response[7],'\0'};
+	cout << "Byte A: [" << byteA << "]"<< endl;
+
+
+	int a = (int)(response[0]);
+	std::stringstream ss;
+	ss << std::hex << byteA;
+	ss >> a;
+
+	int throttlePos = a;
+	engineThrottle = throttlePos;
+
+	cout << "Engine Throttle Position is " << throttlePos << endl;
+
+	return throttlePos;
+
+}
+
+int obdDataReader::readIntakeAirTemp(){
+
+	unsigned char requestPID[] = "010F\r";
+	writePort(requestPID);
+	usleep(1000);
+	char * response = "\0";
+	while(response[0]!='4'){
+		response = readPort(1024);
+		cout << "Attempted response read " << response << endl;
+		usleep(1000);
+	}
+
+	cout << "Intake Airtemp Response response: [" << response << "]"<< endl;
+	char byteA[3] = {(char)response[6],(char)response[7],'\0'};
+	cout << "Byte A: [" << byteA << "]"<< endl;
+
+
+	int a = (int)(response[0]);
+	std::stringstream ss;
+	ss << std::hex << byteA;
+	ss >> a;
+
+	int intakeTempCalc = a - 40;
+	airIntakeTemperature = intakeTempCalc;
+
+	cout << "Intake Air Temperature is " << airIntakeTemperature << endl;
+
+	return airIntakeTemperature;
+
+}
+
+int obdDataReader::readEngineCoolantTemp(){
+
+	unsigned char requestPID[] = "0105\r";
+	writePort(requestPID);
+	usleep(1000);
+	char * response = "\0";
+	while(response[0]!='4'){
+		response = readPort(1024);
+		cout << "Attempted response read " << response << endl;
+		usleep(1000);
+	}
+
+	cout << "Engine Coolant Temp Response response: [" << response << "]"<< endl;
+	char byteA[3] = {(char)response[6],(char)response[7],'\0'};
+	cout << "Byte A: [" << byteA << "]"<< endl;
+
+
+	int a = (int)(response[0]);
+	std::stringstream ss;
+	ss << std::hex << byteA;
+	ss >> a;
+
+	int tempCalc = a - 40;
+	engineCoolantTemperature = tempCalc;
+
+	cout << "Engine Coolant Temperature is " << engineCoolantTemperature << endl;
+
+	return engineCoolantTemperature;
+
+}
+
+int obdDataReader::readManifoldAbsPressure(){
+
+	unsigned char requestPID[] = "010B\r";
+	writePort(requestPID);
+	usleep(1000);
+	char * response = "\0";
+	while(response[0]!='4'){
+		response = readPort(1024);
+		cout << "Attempted response read " << response << endl;
+		usleep(1000);
+	}
+
+	cout << "Manifold ABS Pressure response: [" << response << "]"<< endl;
+	char byteA[3] = {(char)response[6],(char)response[7],'\0'};
+	cout << "Byte A: [" << byteA << "]"<< endl;
+
+
+	int a = (int)(response[0]);
+	std::stringstream ss;
+	ss << std::hex << byteA;
+	ss >> a;
+
+	int tempCalc = a;
+	manifoldABSPressure = tempCalc;
+
+	cout << "Manifold ABS Pressure is " << manifoldABSPressure << endl;
+
+	return manifoldABSPressure;
+
+}
+
+void obdDataReader::updateAll(){
+	readRPM();
+	readManifoldAbsPressure();
+	readIntakeAirTemp();
+	readSpeed();
+	readThrottlePos();
+	readEngineCoolantTemp();
 }
 
 

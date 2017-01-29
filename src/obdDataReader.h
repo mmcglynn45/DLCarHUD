@@ -49,8 +49,25 @@ private:
 	int writePort(unsigned char cmd[]);
 
 public:
+	//OBD variables
+	double rpm = 0.0;
+	double speed = 0.0;
+	double engineThrottle = 0.0;
+	double airIntakeTemperature = 0.0;
+	double engineCoolantTemperature = 0.0;
+	double manifoldABSPressure = 0.0;
+
+
+
+
+	void updateAll();
 	int readEngineLoad();
 	int readRPM();
+	int readSpeed();
+	int readThrottlePos();
+	int readIntakeAirTemp();
+	int readManifoldAbsPressure();
+	int readEngineCoolantTemp();
 
 	obdDataReader(char portName[]);
 	obdDataReader(char hostname[], int port);
