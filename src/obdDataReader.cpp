@@ -20,26 +20,14 @@ obdDataReader::obdDataReader(char portName[]) {
 	}
 
 	//Send device reset
-	unsigned char requestPID[] = "ATZ\r";
+	unsigned char requestPID[] = "ATSP3\r";
 	writePort(requestPID);
 	usleep(1000000);
 
 
-	unsigned char request2PID[] = "ATD\r";
+	unsigned char request2PID[] = "ATZ\r";
 	writePort(request2PID);
 	usleep(1000000);
-
-	unsigned char request3PID[] = "ATE1\r";
-	writePort(request3PID);
-	usleep(1000000);
-
-	unsigned char request4PID[] = "ATL1\r";
-	writePort(request4PID);
-	usleep(1000000);
-
-	unsigned char request5PID[] = "0100\r";
-	writePort(request5PID);
-	usleep(3000000);
 
 
 
@@ -217,6 +205,11 @@ char* obdDataReader::readPort(int bufferLength){
 		std::cout << "Response: " << response << std::endl;
 
 	}
+
+	if (response[0] == '>'){
+		std::cout << "Read a command start!" << std::endl;
+		//response++;
+	}
 	return response;
 }
 
@@ -248,9 +241,11 @@ int obdDataReader::readRPM(){
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
-	while(response[0]!='4'){
+	while(response[0]!='4'&&response[0]!='>'){
 		response = readPort(1024);
-		cout << "Attempted response read " << response << endl;
+		if (response[0]=='>'){
+			response++;
+		}
 		usleep(1000);
 	}
 
@@ -287,9 +282,11 @@ int obdDataReader::readSpeed(){
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
-	while(response[0]!='4'){
+	while(response[0]!='4'&&response[0]!='>'){
 		response = readPort(1024);
-		cout << "Attempted response read " << response << endl;
+		if (response[0]=='>'){
+			response++;
+		}
 		usleep(1000);
 	}
 
@@ -319,9 +316,11 @@ int obdDataReader::readThrottlePos(){
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
-	while(response[0]!='4'){
+	while(response[0]!='4'&&response[0]!='>'){
 		response = readPort(1024);
-		cout << "Attempted response read " << response << endl;
+		if (response[0]=='>'){
+			response++;
+		}
 		usleep(1000);
 	}
 
@@ -350,9 +349,11 @@ int obdDataReader::readIntakeAirTemp(){
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
-	while(response[0]!='4'){
+	while(response[0]!='4'&&response[0]!='>'){
 		response = readPort(1024);
-		cout << "Attempted response read " << response << endl;
+		if (response[0]=='>'){
+			response++;
+		}
 		usleep(1000);
 	}
 
@@ -381,9 +382,11 @@ int obdDataReader::readEngineCoolantTemp(){
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
-	while(response[0]!='4'){
+	while(response[0]!='4'&&response[0]!='>'){
 		response = readPort(1024);
-		cout << "Attempted response read " << response << endl;
+		if (response[0]=='>'){
+			response++;
+		}
 		usleep(1000);
 	}
 
@@ -412,9 +415,11 @@ int obdDataReader::readManifoldAbsPressure(){
 	writePort(requestPID);
 	usleep(1000);
 	char * response = "\0";
-	while(response[0]!='4'){
+	while(response[0]!='4'&&response[0]!='>'){
 		response = readPort(1024);
-		cout << "Attempted response read " << response << endl;
+		if (response[0]=='>'){
+			response++;
+		}
 		usleep(1000);
 	}
 
