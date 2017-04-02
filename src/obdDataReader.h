@@ -33,9 +33,11 @@ using namespace std;
 
 class obdDataReader {
 private:
+
 	//Variables
 	int obdPortNumber;
 	int tcpOBDPortSocket;
+	bool successfulPortInit;
 
 	//TCP Port Functions (For WiFi based OBD2)
 	int openTCPPort(char hostname[], int port);

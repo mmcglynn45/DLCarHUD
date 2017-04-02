@@ -16,7 +16,12 @@ obdDataReader::obdDataReader(char portName[]) {
 
 	if (openPort(portName) > -1){
 		std::cout << "Received port initialization success..." << std::endl;
+		successfulPortInit = true;
 
+	}else{
+		successfulPortInit = false;
+		std::cout << "Received port initialization failure..." << std::endl;
+		return;
 	}
 
 	unsigned char request2PID[] = "ATZ\r";
@@ -171,6 +176,12 @@ int obdDataReader::openPort(char portName[]){
 }
 
 char* obdDataReader::readPort(int bufferLength){
+
+	if(!successfulPortInit){
+		char * failedResponse = "failedInit\0";
+		return failedResponse;
+	}
+
 	int readPort = 0;
 	if(obdPortNumber){
 		readPort = obdPortNumber;

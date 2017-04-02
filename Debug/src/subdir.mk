@@ -4,14 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/gpsReader.cpp \
 ../src/main.cpp \
 ../src/obdDataReader.cpp 
 
 OBJS += \
+./src/gpsReader.o \
 ./src/main.o \
 ./src/obdDataReader.o 
 
 CPP_DEPS += \
+./src/gpsReader.d \
 ./src/main.d \
 ./src/obdDataReader.d 
 
