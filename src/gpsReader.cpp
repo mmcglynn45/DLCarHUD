@@ -202,7 +202,7 @@ void gpsReader::readRMC(){
     sscanf(token.c_str(), "%lf", &speed);
 
     // knots to mph conversion
-    speed = speed /1.152;
+    speed = speed*1.152;
 
     std::getline(ss, token, ',');
     sscanf(token.c_str(), "%lf", &trackHeading );
