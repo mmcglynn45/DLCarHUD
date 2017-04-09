@@ -93,6 +93,8 @@ int main() {
 
     while (true) {
 
+    	usleep(1000);
+
 
     	if (!obdThreadCreated&&!webData.obdMeasuring) {
 			webData.obdMeasuring = true;
